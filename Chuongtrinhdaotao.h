@@ -280,7 +280,7 @@ void menu() {
     printf("=========================================\n");
     printf("Lua chon cua ban: ");
 }
-
+/*
 int main() {
     LinkedList list;
     initList(list);
@@ -356,3 +356,4 @@ int main() {
     
     return 0;
 }
+*/
