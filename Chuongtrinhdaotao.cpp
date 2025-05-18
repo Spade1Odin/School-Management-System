@@ -354,6 +354,5 @@ int main() {
         }
     } while (choice != 0);
     
-    //freeList(&list);
     return 0;
 }
