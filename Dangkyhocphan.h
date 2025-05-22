@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include"Chuongtrinhdaotao.h"
 
-#define MAX_SV 1000
+//#define MAX_SV 1000
 #define MAX_tinchidk 28
 
 struct monhoc;
@@ -11,13 +11,17 @@ struct sinhvien{
     char name[20];
     int mssv;
     char manganh[10];
+};
 
+struct MonHocNode{
+    monhoc mh;
+    MonHocNode* next;
 };
 
 struct dky{
     int mssv;
     char hocki[10];
-    monhoc dsmondk[100];
+    MonHocNode* dsmondk;
     int somon;
     int tongsotinchi;
 };
@@ -40,6 +44,26 @@ monhoc* timMonHoc(Nganhdaotao *ndt, char maHP[]) {
         }
     }
     return NULL;
+}
+
+int ktraMonDky(MonHocNode* list, char maHP[]){
+    MonHocNode* temp = list;
+    while(temp != NULL){
+        if(strcmp(temp->mh.mahp, maHP) == 0){
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
+void themMonHoc(dky* dk, monhoc* mh){
+    MonHocNode* newNode = (MonHocNode*)malloc(sizeof(MonHocNode));
+    newNode->mh = *mh;
+    newNode->next = dk->dsmondk;
+    dk->dsmondk = newNode;
+    dk->somon++;
+    dk->tongsotinchi += mh->tinchi;
 }
 
 void dkyhp(dky *dk, sinhvien *sv, Nganhdaotao *ctdt) {
@@ -65,29 +89,25 @@ void dkyhp(dky *dk, sinhvien *sv, Nganhdaotao *ctdt) {
         monhoc *mh = timMonHoc(ctdt, maHP);
         
         if(mh == NULL) {
-            printf("-> Loi: Ma hoc phan khong ton tai!\n");
+            printf("Ma hoc phan khong ton tai!\n");
             continue;
         }
 
         // Kiểm tra trùng môn
-        for(int i = 0; i < dk->somon; i++) {
-            if(strcmp(dk->dsmondk[i].mahp, maHP) == 0) {
-                printf("Mon hoc da duoc dang ky!\n");
-                break;
-            }
+        if(ktraMonDky(dk->dsmondk, maHP)){
+            printf("Mon da duoc dang ky!\n");
+            continue;
         }
 
         // Kiểm tra số tín chỉ
         if(dk->tongsotinchi + mh->tinchi > MAX_tinchidk) {
-            printf("-> Loi: Vuot qua tin chi toi da (%d + %d > %d)!\n", 
+            printf("!!!Vuot qua tin chi toi da (%d + %d > %d)!\n", 
                   dk->tongsotinchi, mh->tinchi, MAX_tinchidk);
             continue;
         }
 
         // Thêm vào danh sách đăng ký
-        strcpy(dk->dsmondk[dk->somon].mahp, maHP);
-        dk->somon++;
-        dk->tongsotinchi += mh->tinchi;
+        themMonHoc(dk, mh);
         printf("-> Dang ky thanh cong: %s - %s (%dTC)\n", 
               mh->mahp, mh->tenhp, mh->tinchi);
     }
@@ -104,11 +124,10 @@ void hienThiDangKy(dky dk) {
     printf("Danh sach mon hoc:\n");
     printf("%-10s %-30s %-10s\n", "Ma HP", "Ten mon hoc", "Tin chi");
     
-    for (int i = 0; i < dk.somon; i++) {
-        printf("%-10s %-30s %-10d\n", 
-              dk.dsmondk[i].mahp,
-              dk.dsmondk[i].tenhp,
-              dk.dsmondk[i].tinchi);
+    MonHocNode* temp = dk.dsmondk;
+    while(temp != NULL){
+        printf("%-10s %-30s %-10d\n", temp->mh.mahp, temp->mh.tenhp, temp->mh.tinchi);
+        temp = temp->next;
     }
 }
 /*
